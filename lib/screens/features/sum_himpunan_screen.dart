@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/feature_scaffold.dart';
 
@@ -13,8 +14,18 @@ class _SumHimpunanScreenState extends State<SumHimpunanScreen> {
   static const int _maxCharsPerNumber = 15;
 
   final _c = TextEditingController();
-  String? _result;
+  double? _sum;
   String? _error;
+
+  String _formatNumber(double value) {
+    if (value == value.truncateToDouble()) {
+      return value.toInt().toString();
+    }
+
+    return value
+        .toStringAsFixed(10)
+        .replaceFirst(RegExp(r'\.?0+$'), '');
+  }
 
   void _hitung() {
     final raw = _c.text.trim();
@@ -22,14 +33,14 @@ class _SumHimpunanScreenState extends State<SumHimpunanScreen> {
     if (raw.isEmpty) {
       setState(() {
         _error = 'Input tidak boleh kosong!';
-        _result = null;
+        _sum = null;
       });
       return;
     }
     if (raw.contains(' ')) {
       setState(() {
         _error = 'Input tidak boleh mengandung spasi!';
-        _result = null;
+        _sum = null;
       });
       return;
     }
@@ -40,22 +51,22 @@ class _SumHimpunanScreenState extends State<SumHimpunanScreen> {
     if (tooLong.isNotEmpty) {
       setState(() {
         _error = 'Setiap angka tidak boleh lebih dari $_maxCharsPerNumber karakter.';
-        _result = null;
+        _sum = null;
       });
       return;
     }
 
     try {
-      final values = parts.map((s) => double.parse(s));
+      final values = parts.map((s) => double.parse(s.trim().replaceAll(',', '.')));
       final sum = values.reduce((a, b) => a + b);
       setState(() {
         _error = null;
-        _result = 'Hasil penjumlahan adalah: $sum';
+        _sum = sum;
       });
     } catch (_) {
       setState(() {
-        _error = 'Input tidak boleh mengandung huruf.';
-        _result = null;
+        _error = 'Input tidak valid! Pastikan hanya berisi angka dan koma pemisah.';
+        _sum = null;
       });
     }
   }
@@ -67,29 +78,20 @@ class _SumHimpunanScreenState extends State<SumHimpunanScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextField(
-            controller: _c,
-            decoration: InputDecoration(
-              labelText: 'Himpunan angka (pisahkan dengan koma)',
-              hintText: 'contoh: 1,2,3,4',
-              filled: true,
-              fillColor: AppColors.inputBg,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: const BorderSide(color: AppColors.inputBorder)),
-            ),
-          ),
+          _numField('Himpunan angka (pisahkan dengan koma)', _c),
           const SizedBox(height: AppSpacing.xs),
           Text(
             'Maks. $_maxCharsPerNumber karakter per angka',
             style: AppText.bodyMuted.copyWith(fontSize: 11.5),
           ),
           if (_error != null) ...[
-            const SizedBox(height: AppSpacing.md),
-            Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 13)),
+            const SizedBox(height: AppSpacing.sm),
+            Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 12)),
           ],
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.lg),
           SizedBox(
             width: double.infinity,
-            height: 48,
+            height: 44,
             child: ElevatedButton(
               onPressed: _hitung,
               style: ElevatedButton.styleFrom(
@@ -97,14 +99,59 @@ class _SumHimpunanScreenState extends State<SumHimpunanScreen> {
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
               ),
-              child: const Text('Hitung'),
+              child: const Text('Hitung', style: TextStyle(fontSize: 13.5)),
             ),
           ),
-          if (_result != null) ...[
-            const SizedBox(height: AppSpacing.lg),
-            ResultBox(text: _result!),
+          if (_sum != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            _resultCard('Hasil Penjumlahan', _formatNumber(_sum!)),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _resultCard(String label, String value) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.inputBg,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.inputBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: AppText.label.copyWith(fontSize: 10.5)),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.textDark),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _numField(String label, TextEditingController c) {
+    return TextField(
+      controller: c,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+      style: const TextStyle(fontSize: 13),
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'^[-,.\d]*$')),
+      ],
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(fontSize: 13),
+        hintText: 'contoh: 1,2,3,4',
+        hintStyle: const TextStyle(fontSize: 12),
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        filled: true,
+        fillColor: AppColors.inputBg,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: const BorderSide(color: AppColors.inputBorder)),
       ),
     );
   }
