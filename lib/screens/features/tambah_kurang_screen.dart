@@ -15,7 +15,8 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
 
   final _a = TextEditingController();
   final _b = TextEditingController();
-  String? _result;
+  double? _sum;
+  double? _diff;
   String? _error;
 
   double? _parse(String raw) {
@@ -30,7 +31,8 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
     if (rawA.length > _maxChars || rawB.length > _maxChars) {
       setState(() {
         _error = 'Input tidak boleh lebih dari $_maxChars karakter.';
-        _result = null;
+        _sum = null;
+        _diff = null;
       });
       return;
     }
@@ -41,14 +43,16 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
     if (a == null || b == null) {
       setState(() {
         _error = 'Input tidak valid! Harap masukkan angka (contoh: 12, -5, 3.14).';
-        _result = null;
+        _sum = null;
+        _diff = null;
       });
       return;
     }
 
     setState(() {
       _error = null;
-      _result = 'Penjumlahan: $a + $b = ${a + b}\nPengurangan: $a - $b = ${a - b}';
+      _sum = a + b;
+      _diff = a - b;
     });
   }
 
@@ -60,16 +64,16 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _numField('Angka pertama', _a),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           _numField('Angka kedua', _b),
           if (_error != null) ...[
-            const SizedBox(height: AppSpacing.md),
-            Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 13)),
+            const SizedBox(height: AppSpacing.sm),
+            Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 12)),
           ],
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.lg),
           SizedBox(
             width: double.infinity,
-            height: 48,
+            height: 44,
             child: ElevatedButton(
               onPressed: _hitung,
               style: ElevatedButton.styleFrom(
@@ -77,13 +81,43 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
               ),
-              child: const Text('Hitung'),
+              child: const Text('Hitung', style: TextStyle(fontSize: 13.5)),
             ),
           ),
-          if (_result != null) ...[
-            const SizedBox(height: AppSpacing.lg),
-            ResultBox(text: _result!),
+          if (_sum != null && _diff != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _resultCard('Hasil Penjumlahan', _sum!)),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(child: _resultCard('Hasil Pengurangan', _diff!)),
+              ],
+            ),
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _resultCard(String label, double value) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.inputBg,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.inputBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: AppText.label.copyWith(fontSize: 10.5)),
+          const SizedBox(height: 4),
+          Text(
+            '$value',
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.textDark),
+          ),
         ],
       ),
     );
@@ -94,10 +128,17 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
       controller: c,
       keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
       maxLength: _maxChars,
-      inputFormatters: [LengthLimitingTextInputFormatter(_maxChars)],
+      style: const TextStyle(fontSize: 13),
+      inputFormatters: [
+        LengthLimitingTextInputFormatter(_maxChars),
+        FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+      ],
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: const TextStyle(fontSize: 13),
         counterText: '',
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         filled: true,
         fillColor: AppColors.inputBg,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: const BorderSide(color: AppColors.inputBorder)),
