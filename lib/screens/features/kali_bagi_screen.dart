@@ -172,6 +172,7 @@ class _KaliBagiScreenState extends State<KaliBagiScreen> {
       inputFormatters: [
         LengthLimitingTextInputFormatter(_maxChars),
         FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+        _LeadingZeroFormatter(),
       ],
       decoration: InputDecoration(
         labelText: label,
@@ -184,5 +185,36 @@ class _KaliBagiScreenState extends State<KaliBagiScreen> {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: const BorderSide(color: AppColors.inputBorder)),
       ),
     );
+  }
+}
+
+class _LeadingZeroFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final oldText = oldValue.text;
+    final newText = newValue.text;
+
+    if (newText.length <= oldText.length) {
+      return newValue;
+    }
+
+    final addedChar = newText.substring(oldText.length);
+    if (!RegExp(r'^\d$').hasMatch(addedChar)) {
+      return newValue;
+    }
+
+    final isPlainZero = oldText == '0' || oldText == '-0';
+    if (isPlainZero) {
+      final result = '$oldText.$addedChar';
+      return TextEditingValue(
+        text: result,
+        selection: TextSelection.collapsed(offset: result.length),
+      );
+    }
+
+    return newValue;
   }
 }

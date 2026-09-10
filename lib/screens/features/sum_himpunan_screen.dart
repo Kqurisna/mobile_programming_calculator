@@ -18,37 +18,37 @@ class _SumHimpunanScreenState extends State<SumHimpunanScreen> {
   String? _error;
 
   String _formatNumber(double value) {
-  final isNegative = value < 0;
-  final absValue = value.abs();
+    final isNegative = value < 0;
+    final absValue = value.abs();
 
-  String result;
-  if (absValue == absValue.truncateToDouble()) {
-    result = absValue.toInt().toString();
-  } else {
-    result = absValue
-        .toStringAsFixed(10)
-        .replaceFirst(RegExp(r'\.?0+$'), '');
-  }
-
-  final parts = result.split('.');
-  final intPart = parts[0];
-  final decimalPart = parts.length > 1 ? parts[1] : null;
-
-  final buffer = StringBuffer();
-  for (int i = 0; i < intPart.length; i++) {
-    if (i > 0 && (intPart.length - i) % 3 == 0) {
-      buffer.write('.');
+    String result;
+    if (absValue == absValue.truncateToDouble()) {
+      result = absValue.toInt().toString();
+    } else {
+      result = absValue
+          .toStringAsFixed(10)
+          .replaceFirst(RegExp(r'\.?0+$'), '');
     }
-    buffer.write(intPart[i]);
-  }
 
-  var formatted = buffer.toString();
-  if (decimalPart != null) {
-    formatted = '$formatted,$decimalPart';
-  }
+    final parts = result.split('.');
+    final intPart = parts[0];
+    final decimalPart = parts.length > 1 ? parts[1] : null;
 
-  return isNegative ? '-$formatted' : formatted;
-}
+    final buffer = StringBuffer();
+    for (int i = 0; i < intPart.length; i++) {
+      if (i > 0 && (intPart.length - i) % 3 == 0) {
+        buffer.write('.');
+      }
+      buffer.write(intPart[i]);
+    }
+
+    var formatted = buffer.toString();
+    if (decimalPart != null) {
+      formatted = '$formatted,$decimalPart';
+    }
+
+    return isNegative ? '-$formatted' : formatted;
+  }
 
   void _hitung() {
     final raw = _c.text.trim();
@@ -164,6 +164,7 @@ class _SumHimpunanScreenState extends State<SumHimpunanScreen> {
       style: const TextStyle(fontSize: 13),
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'^[-,.\d]*$')),
+        _LeadingZeroSegmentFormatter(),
       ],
       decoration: InputDecoration(
         labelText: label,
@@ -177,5 +178,40 @@ class _SumHimpunanScreenState extends State<SumHimpunanScreen> {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: const BorderSide(color: AppColors.inputBorder)),
       ),
     );
+  }
+}
+
+class _LeadingZeroSegmentFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final oldText = oldValue.text;
+    final newText = newValue.text;
+
+    if (newText.length <= oldText.length) {
+      return newValue;
+    }
+
+    final addedChar = newText.substring(oldText.length);
+    if (!RegExp(r'^\d$').hasMatch(addedChar)) {
+      return newValue;
+    }
+
+    final lastCommaIndex = oldText.lastIndexOf(',');
+    final lastSegment =
+        lastCommaIndex == -1 ? oldText : oldText.substring(lastCommaIndex + 1);
+
+    final isPlainZero = lastSegment == '0' || lastSegment == '-0';
+    if (isPlainZero) {
+      final result = '$oldText.$addedChar';
+      return TextEditingValue(
+        text: result,
+        selection: TextSelection.collapsed(offset: result.length),
+      );
+    }
+
+    return newValue;
   }
 }
