@@ -26,14 +26,37 @@ class _KaliBagiScreenState extends State<KaliBagiScreen> {
   }
 
   String _formatNumber(double value) {
-    if (value == value.truncateToDouble()) {
-      return value.toInt().toString();
-    }
+  final isNegative = value < 0;
+  final absValue = value.abs();
 
-    return value
+  String result;
+  if (absValue == absValue.truncateToDouble()) {
+    result = absValue.toInt().toString();
+  } else {
+    result = absValue
         .toStringAsFixed(10)
         .replaceFirst(RegExp(r'\.?0+$'), '');
   }
+
+  final parts = result.split('.');
+  final intPart = parts[0];
+  final decimalPart = parts.length > 1 ? parts[1] : null;
+
+  final buffer = StringBuffer();
+  for (int i = 0; i < intPart.length; i++) {
+    if (i > 0 && (intPart.length - i) % 3 == 0) {
+      buffer.write('.');
+    }
+    buffer.write(intPart[i]);
+  }
+
+  var formatted = buffer.toString();
+  if (decimalPart != null) {
+    formatted = '$formatted,$decimalPart';
+  }
+
+  return isNegative ? '-$formatted' : formatted;
+}
 
   void _hitung() {
     final rawA = _a.text.trim();
