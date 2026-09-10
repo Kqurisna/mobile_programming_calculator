@@ -72,12 +72,6 @@ class _MenuCardState extends State<MenuCard> {
                     style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14.5, color: AppColors.textDark),
                   ),
                 ),
-                Container(
-                  width: 30,
-                  height: 30,
-                  decoration: const BoxDecoration(color: AppColors.arrowBg, shape: BoxShape.circle),
-                  child: const Icon(Icons.arrow_forward_rounded, size: 15, color: AppColors.primaryBlue),
-                ),
               ],
             ),
           ),
