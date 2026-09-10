@@ -17,6 +17,21 @@ class _GanjilGenapScreenState extends State<GanjilGenapScreen> {
   String? _result;
   String? _error;
 
+  double? _parse(String raw) {
+    final cleaned = raw.trim().replaceAll(',', '.');
+    return double.tryParse(cleaned);
+  }
+
+  String _formatNumber(double value) {
+    if (value == value.truncateToDouble()) {
+      return value.toInt().toString();
+    }
+
+    return value
+        .toStringAsFixed(10)
+        .replaceFirst(RegExp(r'\.?0+$'), '');
+  }
+
   void _cek() {
     final raw = _c.text.trim();
 
@@ -28,11 +43,11 @@ class _GanjilGenapScreenState extends State<GanjilGenapScreen> {
       return;
     }
 
-    final double? angka = double.tryParse(raw.replaceAll(',', '.'));
+    final double? angka = _parse(raw);
 
     if (angka == null) {
       setState(() {
-        _error = 'Input tidak valid! Harap masukkan angka.';
+        _error = 'Input tidak valid! Harap masukkan angka (contoh: 12, -5).';
         _result = null;
       });
       return;
@@ -48,7 +63,9 @@ class _GanjilGenapScreenState extends State<GanjilGenapScreen> {
 
     setState(() {
       _error = null;
-      _result = angka % 2 == 0 ? '$angka adalah bilangan GENAP.' : '$angka adalah bilangan GANJIL.';
+      _result = angka % 2 == 0
+          ? '${_formatNumber(angka)} adalah bilangan GENAP.'
+          : '${_formatNumber(angka)} adalah bilangan GANJIL.';
     });
   }
 
@@ -59,27 +76,15 @@ class _GanjilGenapScreenState extends State<GanjilGenapScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextField(
-            controller: _c,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-            maxLength: _maxChars,
-            inputFormatters: [LengthLimitingTextInputFormatter(_maxChars)],
-            decoration: InputDecoration(
-              labelText: 'Masukkan sebuah angka',
-              counterText: '',
-              filled: true,
-              fillColor: AppColors.inputBg,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: const BorderSide(color: AppColors.inputBorder)),
-            ),
-          ),
+          _numField('Masukkan sebuah angka', _c),
           if (_error != null) ...[
-            const SizedBox(height: AppSpacing.md),
-            Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 13)),
+            const SizedBox(height: AppSpacing.sm),
+            Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 12)),
           ],
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.lg),
           SizedBox(
             width: double.infinity,
-            height: 48,
+            height: 44,
             child: ElevatedButton(
               onPressed: _cek,
               style: ElevatedButton.styleFrom(
@@ -87,14 +92,60 @@ class _GanjilGenapScreenState extends State<GanjilGenapScreen> {
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
               ),
-              child: const Text('Cek'),
+              child: const Text('Cek', style: TextStyle(fontSize: 13.5)),
             ),
           ),
           if (_result != null) ...[
-            const SizedBox(height: AppSpacing.lg),
-            ResultBox(text: _result!),
+            const SizedBox(height: AppSpacing.md),
+            _resultCard('Hasil', _result!),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _resultCard(String label, String value) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.inputBg,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.inputBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: AppText.label.copyWith(fontSize: 10.5)),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textDark),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _numField(String label, TextEditingController c) {
+    return TextField(
+      controller: c,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+      maxLength: _maxChars,
+      style: const TextStyle(fontSize: 13),
+      inputFormatters: [
+        LengthLimitingTextInputFormatter(_maxChars),
+        FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+      ],
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(fontSize: 13),
+        counterText: '',
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        filled: true,
+        fillColor: AppColors.inputBg,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: const BorderSide(color: AppColors.inputBorder)),
       ),
     );
   }
