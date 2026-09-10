@@ -62,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     if (match.isNotEmpty) {
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        fadeSlideRoute(HomeScreen(username: match.first.username)),
+        fadeSlideRoute(HomeScreen(username: match.first.username, fullName: match.first.fullName)),
       );
     } else {
       HapticFeedback.mediumImpact();

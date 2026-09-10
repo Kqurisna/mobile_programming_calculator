@@ -13,7 +13,8 @@ import '../features/sum_himpunan_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final String username;
-  const HomeScreen({super.key, required this.username});
+  final String fullName;
+  const HomeScreen({super.key, required this.username, required this.fullName});
 
   String get _greeting {
     final hour = DateTime.now().hour;
