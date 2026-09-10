@@ -24,6 +24,15 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
     return double.tryParse(cleaned);
   }
 
+  String _formatNumber(double value) {
+  if (value == value.truncateToDouble()) {
+    return value.toInt().toString();
+  }
+
+  return value
+      .toStringAsFixed(10)
+      .replaceFirst(RegExp(r'\.?0+$'), '');
+}
   void _hitung() {
     final rawA = _a.text.trim();
     final rawB = _b.text.trim();
@@ -89,9 +98,9 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: _resultCard('Hasil Penjumlahan', _sum!)),
+                Expanded(child: _resultCard('Hasil Penjumlahan', _formatNumber(_sum!))),
                 const SizedBox(width: AppSpacing.sm),
-                Expanded(child: _resultCard('Hasil Pengurangan', _diff!)),
+                Expanded(child: _resultCard('Hasil Pengurangan', _formatNumber(_diff!))),
               ],
             ),
           ],
@@ -100,7 +109,7 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
     );
   }
 
-  Widget _resultCard(String label, double value) {
+  Widget _resultCard(String label, String value) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
@@ -115,7 +124,7 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
           Text(label, style: AppText.label.copyWith(fontSize: 10.5)),
           const SizedBox(height: 4),
           Text(
-            '$value',
+            value,
             style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.textDark),
           ),
         ],
