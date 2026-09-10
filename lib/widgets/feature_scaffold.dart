@@ -14,6 +14,10 @@ class FeatureScaffold extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
         title: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
       ),
       body: SingleChildScrollView(
