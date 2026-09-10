@@ -46,36 +46,27 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: AppColors.bgHome,
       body: Column(
         children: [
-          // HEADER — beberapa lingkaran dekoratif transparan untuk kesan lebih hidup
+          // HEADER — minimalis, dekorasi hanya 1 lingkaran besar transparan
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, 0, AppSpacing.xl, AppSpacing.lg),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, 0, AppSpacing.xl, AppSpacing.xxl),
             decoration: const BoxDecoration(color: AppColors.primaryBlue),
             child: SafeArea(
               bottom: false,
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  const DecorativeCircle(
-                    size: 150,
-                    color: Color(0x0DFFFFFF), // white ~7%
-                    top: -35,
-                    right: -35,
-                  ),
-                  const DecorativeCircle(
-                    size: 10,
-                    color: Color(0x0DFFFFFF), // white ~5%
-                    bottom: -45,
-                    left: -30,
-                  ),
-                  const DecorativeCircle(
-                    size: 80,
-                    color: Color(0x17FFFFFF), // white ~9%
-                    top: 34,
-                    left: -14,
+                  Positioned(
+                    top: -30,
+                    right: -30,
+                    child: Container(
+                      width: 140,
+                      height: 140,
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withOpacity(0.07)),
+                    ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: AppSpacing.xl),
+                    padding: const EdgeInsets.only(top: AppSpacing.sm),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -101,55 +92,31 @@ class HomeScreen extends StatelessWidget {
           // BODY
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.xl, 0, AppSpacing.xl, AppSpacing.lg),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.xl, 0, AppSpacing.xl, AppSpacing.xxl),
               children: [
-                // WELCOME CARD — dengan aksen lingkaran, tetap rapi berkat ClipRRect
+                // WELCOME CARD — flat, shadow tipis, tanpa hiasan lingkaran berlebih
                 Container(
                   width: double.infinity,
                   margin: const EdgeInsets.only(top: AppSpacing.lg, bottom: AppSpacing.xxl),
+                  padding: const EdgeInsets.all(AppSpacing.xl),
                   decoration: BoxDecoration(
+                    color: AppColors.darkBlue,
                     borderRadius: BorderRadius.circular(AppRadius.lg),
                     boxShadow: AppShadow.soft,
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(AppRadius.lg),
-                    child: Container(
-                      color: AppColors.darkBlue,
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          DecorativeCircle(
-                            size: 100,
-                            color: AppColors.brightCyan.withOpacity(0.10),
-                            top: -30,
-                            right: -25,
-                          ),
-                          DecorativeCircle(
-                            size: 70,
-                            color: AppColors.turquoise.withOpacity(0.10),
-                            bottom: -30,
-                            left: -20,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(AppSpacing.xl),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '$_greeting, $username',
-                                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
-                                ),
-                                const SizedBox(height: AppSpacing.sm),
-                                const Text(
-                                  'Gunakan menu di bawah untuk mengakses fitur kalkulator kelompok.',
-                                  style: TextStyle(color: Colors.white70, fontSize: 12.5, height: 1.5),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$_greeting, $username',
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
                       ),
-                    ),
+                      const SizedBox(height: AppSpacing.sm),
+                      const Text(
+                        'Gunakan menu di bawah untuk mengakses fitur kalkulator kelompok.',
+                        style: TextStyle(color: Colors.white70, fontSize: 12.5, height: 1.5),
+                      ),
+                    ],
                   ),
                 ),
 
