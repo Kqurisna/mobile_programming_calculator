@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/feature_scaffold.dart';
 
+// Halaman fitur Jumlah Total Himpunan Angka
 class SumHimpunanScreen extends StatefulWidget {
   const SumHimpunanScreen({super.key});
 
@@ -11,12 +12,15 @@ class SumHimpunanScreen extends StatefulWidget {
 }
 
 class _SumHimpunanScreenState extends State<SumHimpunanScreen> {
+  // Batas maksimal karakter per angka dalam himpunan
   static const int _maxCharsPerNumber = 15;
 
   final _c = TextEditingController();
   double? _sum;
   String? _error;
 
+  // Format angka hasil: hilangkan .0 jika bulat, tambahkan pemisah ribuan,
+  // dan pakai koma untuk desimal (format angka gaya Indonesia)
   String _formatNumber(double value) {
     final isNegative = value < 0;
     final absValue = value.abs();
@@ -34,6 +38,7 @@ class _SumHimpunanScreenState extends State<SumHimpunanScreen> {
     final intPart = parts[0];
     final decimalPart = parts.length > 1 ? parts[1] : null;
 
+    // Sisipkan titik setiap 3 digit dari belakang (pemisah ribuan)
     final buffer = StringBuffer();
     for (int i = 0; i < intPart.length; i++) {
       if (i > 0 && (intPart.length - i) % 3 == 0) {
@@ -50,6 +55,8 @@ class _SumHimpunanScreenState extends State<SumHimpunanScreen> {
     return isNegative ? '-$formatted' : formatted;
   }
 
+  // Validasi input (tidak boleh kosong/spasi/terlalu panjang) lalu jumlahkan
+  // semua angka yang dipisahkan koma
   void _hitung() {
     final raw = _c.text.trim();
 
@@ -125,6 +132,7 @@ class _SumHimpunanScreenState extends State<SumHimpunanScreen> {
               child: const Text('Hitung', style: TextStyle(fontSize: 13.5)),
             ),
           ),
+          // Kartu hasil penjumlahan himpunan angka
           if (_sum != null) ...[
             const SizedBox(height: AppSpacing.md),
             _resultCard('Hasil Penjumlahan', _formatNumber(_sum!)),
@@ -134,6 +142,7 @@ class _SumHimpunanScreenState extends State<SumHimpunanScreen> {
     );
   }
 
+  // Kartu kecil untuk menampilkan hasil (label + nilai)
   Widget _resultCard(String label, String value) {
     return Container(
       width: double.infinity,
@@ -157,6 +166,8 @@ class _SumHimpunanScreenState extends State<SumHimpunanScreen> {
     );
   }
 
+  // Kolom input daftar angka (dipisahkan koma), hanya menerima
+  // digit, minus, titik, dan koma
   Widget _numField(String label, TextEditingController c) {
     return TextField(
       controller: c,
@@ -181,6 +192,9 @@ class _SumHimpunanScreenState extends State<SumHimpunanScreen> {
   }
 }
 
+// Formatter khusus untuk input berisi banyak angka (dipisah koma):
+// kalau salah satu segmen angka diawali 0 lalu diketik lagi,
+// otomatis sisipkan titik desimal (misal '0' + '5' -> '0.5')
 class _LeadingZeroSegmentFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
@@ -199,6 +213,7 @@ class _LeadingZeroSegmentFormatter extends TextInputFormatter {
       return newValue;
     }
 
+    // Cari segmen angka terakhir (setelah koma pemisah terakhir)
     final lastCommaIndex = oldText.lastIndexOf(',');
     final lastSegment =
         lastCommaIndex == -1 ? oldText : oldText.substring(lastCommaIndex + 1);

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/feature_scaffold.dart';
 
+// Halaman fitur Cek Ganjil / Genap
 class GanjilGenapScreen extends StatefulWidget {
   const GanjilGenapScreen({super.key});
 
@@ -11,17 +12,21 @@ class GanjilGenapScreen extends StatefulWidget {
 }
 
 class _GanjilGenapScreenState extends State<GanjilGenapScreen> {
+  // Batas maksimal karakter yang boleh diketik
   static const int _maxChars = 15;
 
   final _c = TextEditingController();
   String? _result;
   String? _error;
 
+  // Ubah teks input jadi angka (mendukung koma sebagai pemisah desimal)
   double? _parse(String raw) {
     final cleaned = raw.trim().replaceAll(',', '.');
     return double.tryParse(cleaned);
   }
 
+  // Format angka hasil: hilangkan .0 jika bulat, tambahkan pemisah ribuan,
+  // dan pakai koma untuk desimal (format angka gaya Indonesia)
   String _formatNumber(double value) {
     final isNegative = value < 0;
     final absValue = value.abs();
@@ -39,6 +44,7 @@ class _GanjilGenapScreenState extends State<GanjilGenapScreen> {
     final intPart = parts[0];
     final decimalPart = parts.length > 1 ? parts[1] : null;
 
+    // Sisipkan titik setiap 3 digit dari belakang (pemisah ribuan)
     final buffer = StringBuffer();
     for (int i = 0; i < intPart.length; i++) {
       if (i > 0 && (intPart.length - i) % 3 == 0) {
@@ -55,6 +61,7 @@ class _GanjilGenapScreenState extends State<GanjilGenapScreen> {
     return isNegative ? '-$formatted' : formatted;
   }
 
+  // Validasi input lalu cek apakah angka ganjil atau genap
   void _cek() {
     final raw = _c.text.trim();
 
@@ -76,6 +83,7 @@ class _GanjilGenapScreenState extends State<GanjilGenapScreen> {
       return;
     }
 
+    // Ganjil/Genap hanya berlaku untuk bilangan bulat
     if (angka % 1 != 0) {
       setState(() {
         _error = 'Ganjil/Genap hanya berlaku untuk bilangan bulat (contoh: 4, bukan 4.5).';
@@ -118,6 +126,7 @@ class _GanjilGenapScreenState extends State<GanjilGenapScreen> {
               child: const Text('Cek', style: TextStyle(fontSize: 13.5)),
             ),
           ),
+          // Kartu hasil cek ganjil/genap
           if (_result != null) ...[
             const SizedBox(height: AppSpacing.md),
             _resultCard('Hasil', _result!),
@@ -127,6 +136,7 @@ class _GanjilGenapScreenState extends State<GanjilGenapScreen> {
     );
   }
 
+  // Kartu kecil untuk menampilkan hasil (label + nilai)
   Widget _resultCard(String label, String value) {
     return Container(
       width: double.infinity,
@@ -150,6 +160,7 @@ class _GanjilGenapScreenState extends State<GanjilGenapScreen> {
     );
   }
 
+  // Kolom input angka dengan validasi karakter (hanya angka, minus, titik desimal)
   Widget _numField(String label, TextEditingController c) {
     return TextField(
       controller: c,
@@ -175,6 +186,8 @@ class _GanjilGenapScreenState extends State<GanjilGenapScreen> {
   }
 }
 
+// Formatter khusus: kalau input diawali angka 0 lalu diketik lagi,
+// otomatis sisipkan titik desimal (misal '0' + '5' -> '0.5')
 class _LeadingZeroFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(

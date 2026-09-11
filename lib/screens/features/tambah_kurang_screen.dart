@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/feature_scaffold.dart';
 
+// Halaman fitur Penjumlahan & Pengurangan
 class TambahKurangScreen extends StatefulWidget {
   const TambahKurangScreen({super.key});
 
@@ -11,6 +12,7 @@ class TambahKurangScreen extends StatefulWidget {
 }
 
 class _TambahKurangScreenState extends State<TambahKurangScreen> {
+  // Batas maksimal karakter yang boleh diketik per kolom input
   static const int _maxChars = 15;
 
   final _a = TextEditingController();
@@ -19,11 +21,14 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
   double? _diff;
   String? _error;
 
+  // Ubah teks input jadi angka (mendukung koma sebagai pemisah desimal)
   double? _parse(String raw) {
     final cleaned = raw.trim().replaceAll(',', '.');
     return double.tryParse(cleaned);
   }
 
+  // Format angka hasil: hilangkan .0 jika bulat, tambahkan pemisah ribuan,
+  // dan pakai koma untuk desimal (format angka gaya Indonesia)
   String _formatNumber(double value) {
     final isNegative = value < 0;
     final absValue = value.abs();
@@ -41,6 +46,7 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
     final intPart = parts[0];
     final decimalPart = parts.length > 1 ? parts[1] : null;
 
+    // Sisipkan titik setiap 3 digit dari belakang (pemisah ribuan)
     final buffer = StringBuffer();
     for (int i = 0; i < intPart.length; i++) {
       if (i > 0 && (intPart.length - i) % 3 == 0) {
@@ -57,6 +63,7 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
     return isNegative ? '-$formatted' : formatted;
   }
 
+  // Validasi input lalu hitung hasil penjumlahan & pengurangan
   void _hitung() {
     final rawA = _a.text.trim();
     final rawB = _b.text.trim();
@@ -117,6 +124,7 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
               child: const Text('Hitung', style: TextStyle(fontSize: 13.5)),
             ),
           ),
+          // Dua kotak hasil berdampingan: penjumlahan & pengurangan
           if (_sum != null && _diff != null) ...[
             const SizedBox(height: AppSpacing.md),
             Row(
@@ -133,6 +141,7 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
     );
   }
 
+  // Kartu kecil untuk menampilkan satu hasil (label + nilai)
   Widget _resultCard(String label, String value) {
     return Container(
       width: double.infinity,
@@ -156,6 +165,7 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
     );
   }
 
+  // Kolom input angka dengan validasi karakter (hanya angka, minus, titik desimal)
   Widget _numField(String label, TextEditingController c) {
     return TextField(
       controller: c,
@@ -181,6 +191,8 @@ class _TambahKurangScreenState extends State<TambahKurangScreen> {
   }
 }
 
+// Formatter khusus: kalau input diawali angka 0 lalu diketik lagi,
+// otomatis sisipkan titik desimal (misal '0' + '5' -> '0.5')
 class _LeadingZeroFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
